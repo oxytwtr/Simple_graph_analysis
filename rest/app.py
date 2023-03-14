@@ -4,10 +4,10 @@ from nebula3.Config import Config
 
 app = Flask(__name__)
 
-HOST = '192.168.9.109'
-PORT = 9669
-USERNAME = 'root'
-PSSWD = 'nebula'
+DB_HOST = '192.168.0.1'
+DB_PORT = 9669
+DB_USERNAME = 'root'
+DB_PSSWD = 'nebula'
 SCHEMA = 'csv'
 
 def conn(_host, _port):
@@ -19,8 +19,8 @@ def conn(_host, _port):
     ok = connection_pool.init([(_host, _port)], config)
     return connection_pool
     
-def request(_c_pool, _query):  
-    with _c_pool.session_context(USERNAME, PSSWD) as session:
+def request(_c_pool, _query, _username, _psswd):  
+    with _c_pool.session_context(_username, _psswd) as session:
         result = session.execute_json(_query)
     return result
    
@@ -39,8 +39,8 @@ def get_tasks(fio):
               properties(r) AS rel_prop;'
               
     query = f'USE {SCHEMA};FETCH PROP ON * "{fio}" YIELD properties(vertex)'
-    c_pool = conn(HOST, PORT)
-    return request(c_pool, query)
+    c_pool = conn(DB_HOST, DB_PORT)
+    return request(c_pool, query, DB_USERNAME, DB_PSSWD)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8000)
